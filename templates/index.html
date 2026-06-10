@@ -1,0 +1,283 @@
+{% extends "base.html" %}
+
+{% block content %}
+<main>
+  <section class="hero">
+    <div class="hero-copy">
+      <p class="eyebrow">Мини OSINT-лаборатория</p>
+      <h1>Проверяй ник, домен и файлы без лишнего шума.</h1>
+      <p>
+        Введи ник или домен, загрузи файл для метаданных и получи понятный отчет:
+        что найдено, что требует ручной проверки и где лежат технические детали.
+      </p>
+    </div>
+    <div class="status-panel">
+      <span class="pulse"></span>
+      <div>
+        <strong>Свой движок по умолчанию</strong>
+        <small>Прямые HTTP-запросы, аккуратные задержки и без обертки над Maigret/Sherlock.</small>
+      </div>
+    </div>
+  </section>
+
+  <section class="workspace">
+    <div class="tools">
+      <form class="tool-panel" id="username" method="post" action="{{ url_for('scan') }}">
+        <div class="panel-heading">
+          <span>01</span>
+          <div>
+            <h2>Ник и домен</h2>
+            <p>Проверка публичных профилей и базовая разведка домена.</p>
+          </div>
+        </div>
+        <label>
+          Никнейм
+          <input type="text" name="username" placeholder="например, john" autocomplete="off">
+        </label>
+        <label>
+          Домен, если нужно
+          <input type="text" name="domain" placeholder="example.com" autocomplete="off">
+        </label>
+        <label class="check">
+          <input type="checkbox" name="include_ports" checked>
+          Проверить самые частые открытые порты
+        </label>
+        <label class="check required">
+          <input type="checkbox" name="authorized">
+          Я подтверждаю, что проверка законная и разрешенная
+        </label>
+        <button type="submit">Запустить проверку</button>
+      </form>
+
+      <form class="tool-panel" id="metadata" method="post" action="{{ url_for('metadata') }}" enctype="multipart/form-data">
+        <div class="panel-heading">
+          <span>02</span>
+          <div>
+            <h2>Метаданные файла</h2>
+            <p>Покажет EXIF у изображений и свойства DOCX-документов.</p>
+          </div>
+        </div>
+        <label>
+          Файл
+          <input type="file" name="file" accept=".jpg,.jpeg,.png,.tif,.tiff,.docx">
+        </label>
+        <p class="hint">Поддерживается: {{ supported_extensions | join(", ") }}</p>
+        <label class="check required">
+          <input type="checkbox" name="authorized">
+          Я имею право анализировать этот файл
+        </label>
+        <button type="submit">Извлечь метаданные</button>
+      </form>
+
+      <aside class="ethics">
+        <h2>Правила</h2>
+        <p>
+          Инструмент сделан для учебы, защиты и разрешенных расследований.
+          Он не пытается обходить доступ и не делает агрессивных сканов.
+        </p>
+        <ul>
+          <li>Не использовать для травли и слежки.</li>
+          <li>Не подбирать пароли и токены.</li>
+          <li>Не запускать массовые проверки.</li>
+        </ul>
+      </aside>
+    </div>
+
+    <section class="results">
+      <div class="results-heading">
+        <div>
+          <p class="eyebrow">Результат</p>
+          <h2>Понятный отчет</h2>
+        </div>
+        {% if report %}
+          <div class="download-actions">
+            <form method="post" action="{{ url_for('download_json') }}">
+              <input type="hidden" name="content" value="{{ report_json }}">
+              <button type="submit" class="secondary">JSON</button>
+            </form>
+            <form method="post" action="{{ url_for('download_markdown') }}">
+              <input type="hidden" name="content" value="{{ report_markdown }}">
+              <button type="submit" class="secondary">Markdown</button>
+            </form>
+          </div>
+        {% endif %}
+      </div>
+
+      {% if report %}
+        {% set data = report.data %}
+        {% if data.username %}
+          {% set found_profiles = data.username.results | selectattr("exists", "equalto", true) | list %}
+          {% set review_profiles = data.username.results | selectattr("exists", "equalto", none) | list %}
+          {% set missing_profiles = data.username.results | selectattr("exists", "equalto", false) | list %}
+
+          <div class="result-block">
+            <div class="section-title">
+              <div>
+                <h3>Ник: {{ data.username.query }}</h3>
+                <p class="metric">
+                  {{ data.username.found_count }} найдено ·
+                  {{ data.username.unknown_count }} требуют ручной проверки ·
+                  {{ data.username.total }} платформ проверено
+                </p>
+              </div>
+            </div>
+
+            {% if found_profiles %}
+              <h4>Найденные профили</h4>
+              <div class="profile-grid">
+                {% for item in found_profiles %}
+                  <article class="profile-card">
+                    <div>
+                      <strong>{{ item.platform }}</strong>
+                      <small>{{ item.url | host_label }}</small>
+                    </div>
+                    <a class="open-link" href="{{ item.url }}" target="_blank" rel="noreferrer">Открыть</a>
+                  </article>
+                {% endfor %}
+              </div>
+            {% endif %}
+
+            {% if review_profiles %}
+              <details class="soft-details">
+                <summary>Площадки, где нужен ручной взгляд: {{ review_profiles | length }}</summary>
+                <div class="compact-list">
+                  {% for item in review_profiles %}
+                    <a href="{{ item.url }}" target="_blank" rel="noreferrer">
+                      {{ item.platform }} <span>{{ item.status | status_label }}</span>
+                    </a>
+                  {% endfor %}
+                </div>
+              </details>
+            {% endif %}
+
+            {% if missing_profiles %}
+              <details class="soft-details">
+                <summary>Где профиль не найден: {{ missing_profiles | length }}</summary>
+                <div class="pill-list">
+                  {% for item in missing_profiles %}
+                    <span>{{ item.platform }}</span>
+                  {% endfor %}
+                </div>
+              </details>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        {% if data.domain %}
+          <div class="result-block" id="domain">
+            <div class="section-title">
+              <div>
+                <h3>Домен: {{ data.domain.query }}</h3>
+                <p class="metric">Короткая сводка DNS и открытых портов. Технические записи спрятаны ниже.</p>
+              </div>
+            </div>
+
+            <div class="summary-grid">
+              <article class="summary-card">
+                <span>IP-адреса</span>
+                {% set addresses = data.domain.dns.A + data.domain.dns.AAAA %}
+                <strong>{{ addresses | length }}</strong>
+                <p>{{ addresses[:3] | join(", ") if addresses else "Не найдены" }}</p>
+              </article>
+              <article class="summary-card">
+                <span>Почта</span>
+                <strong>{{ data.domain.dns.MX | length }}</strong>
+                <p>{{ data.domain.dns.MX[:2] | join(", ") if data.domain.dns.MX else "MX-записей нет" }}</p>
+              </article>
+              <article class="summary-card">
+                <span>Открытые порты</span>
+                {% set open_ports = data.domain.ports | selectattr("open", "equalto", true) | list %}
+                <strong>{{ open_ports | length }}</strong>
+                <p>
+                  {% if open_ports %}
+                    {% for item in open_ports %}<b>{{ item.port }}</b>{% if not loop.last %}, {% endif %}{% endfor %}
+                  {% else %}
+                    Не обнаружены на частом наборе
+                  {% endif %}
+                </p>
+              </article>
+            </div>
+
+            <details class="soft-details">
+              <summary>Показать технические DNS-записи</summary>
+              <div class="dns-list">
+                {% for record_type, values in data.domain.dns.items() %}
+                  <div>
+                    <strong>{{ record_type }}</strong>
+                    <span>{{ values[:4] | join(", ") if values else "нет" }}</span>
+                  </div>
+                {% endfor %}
+              </div>
+            </details>
+          </div>
+        {% endif %}
+
+        {% if data.metadata %}
+          <div class="result-block">
+            <div class="section-title">
+              <div>
+                <h3>Файл: {{ data.metadata.filename }}</h3>
+                <p class="metric">{{ data.metadata.extension }} · {{ data.metadata.size_bytes }} байт</p>
+              </div>
+            </div>
+
+            {% if data.metadata.image %}
+              {% set image = data.metadata.image %}
+              <div class="summary-grid">
+                <article class="summary-card">
+                  <span>Размер изображения</span>
+                  <strong>{{ image.width }} x {{ image.height }}</strong>
+                  <p>{{ image.format }} · {{ image.mode }}</p>
+                </article>
+                <article class="summary-card">
+                  <span>Устройство</span>
+                  <strong>{{ image.exif.Model or "не указано" }}</strong>
+                  <p>{{ image.exif.Make or image.exif.HostComputer or "производитель не найден" }}</p>
+                </article>
+                <article class="summary-card">
+                  <span>Дата</span>
+                  <strong>{{ image.exif.DateTime or image.exif.DateTimeOriginal or "не найдена" }}</strong>
+                  <p>{{ image.exif.Software or "ПО не указано" }}</p>
+                </article>
+              </div>
+
+              <details class="soft-details">
+                <summary>Показать все EXIF-поля</summary>
+                <div class="key-value-list">
+                  {% for key, value in image.exif.items() %}
+                    <div>
+                      <strong>{{ key | nice_key }}</strong>
+                      <span>{{ value }}</span>
+                    </div>
+                  {% endfor %}
+                </div>
+              </details>
+            {% elif data.metadata.docx %}
+              <div class="key-value-list readable">
+                {% for key, value in data.metadata.docx.items() %}
+                  {% if value %}
+                    <div>
+                      <strong>{{ key | nice_key }}</strong>
+                      <span>{{ value }}</span>
+                    </div>
+                  {% endif %}
+                {% endfor %}
+              </div>
+            {% endif %}
+          </div>
+        {% endif %}
+
+        <details class="raw-report">
+          <summary>Сырая версия отчета JSON</summary>
+          <pre>{{ report_json }}</pre>
+        </details>
+      {% else %}
+        <div class="empty-state">
+          <h3>Пока пусто</h3>
+          <p>Запусти проверку слева. Здесь появится короткий отчет, а технические данные будут спрятаны в раскрывающихся блоках.</p>
+        </div>
+      {% endif %}
+    </section>
+  </section>
+</main>
+{% endblock %}
