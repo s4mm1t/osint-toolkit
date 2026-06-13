@@ -28,6 +28,8 @@ def test_username_checker_uses_mocked_http_responses():
     assert result["found_count"] == 1
     assert result["total"] == 2
     assert result["results"][0]["platform"] == "FoundSite"
+    assert result["results"][0]["confidence_label"] == "high"
+    assert result["results"][0]["category"] == "general"
 
 
 def test_username_normalization_rejects_spaces():
@@ -40,4 +42,3 @@ def test_username_normalization_rejects_spaces():
         assert "spaces" in str(exc)
     else:
         raise AssertionError("Expected ValueError")
-

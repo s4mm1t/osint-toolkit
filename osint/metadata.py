@@ -25,8 +25,10 @@ def extract_metadata(file_path: str | Path) -> dict[str, Any]:
 
     if suffix in {".jpg", ".jpeg", ".tif", ".tiff", ".png"}:
         base["image"] = extract_image_metadata(path)
+        base["risk"] = summarize_image_risk(base["image"])
     elif suffix == ".docx":
         base["docx"] = extract_docx_metadata(path)
+        base["risk"] = summarize_docx_risk(base["docx"])
     return base
 
 
@@ -78,3 +80,44 @@ def _safe_value(value: Any) -> Any:
         return value.isoformat()
     return str(value) if not isinstance(value, (str, int, float, bool, type(None))) else value
 
+
+def summarize_image_risk(image: dict[str, Any]) -> dict[str, Any]:
+    exif = image.get("exif", {})
+    notes: list[str] = []
+    score = 0
+    if exif.get("GPSInfo"):
+        score += 60
+        notes.append("В файле есть GPS-данные. Это может раскрывать место съемки.")
+    if exif.get("Model") or exif.get("Make") or exif.get("HostComputer"):
+        score += 20
+        notes.append("Видно устройство или компьютер, на котором создан файл.")
+    if exif.get("DateTime") or exif.get("DateTimeOriginal"):
+        score += 15
+        notes.append("Видна дата съемки или изменения.")
+    if exif.get("Software"):
+        score += 10
+        notes.append("Видно ПО, которым обрабатывали файл.")
+    return {"level": _risk_level(score), "score": min(score, 100), "notes": notes or ["Критичных метаданных не найдено."]}
+
+
+def summarize_docx_risk(docx: dict[str, Any]) -> dict[str, Any]:
+    notes: list[str] = []
+    score = 0
+    if docx.get("author") or docx.get("last_modified_by"):
+        score += 35
+        notes.append("Документ раскрывает автора или пользователя, который его изменял.")
+    if docx.get("created") or docx.get("modified"):
+        score += 20
+        notes.append("Видны даты создания или изменения.")
+    if docx.get("comments") or docx.get("keywords") or docx.get("category"):
+        score += 15
+        notes.append("Есть дополнительные свойства документа: комментарии, ключевые слова или категория.")
+    return {"level": _risk_level(score), "score": min(score, 100), "notes": notes or ["Критичных свойств документа не найдено."]}
+
+
+def _risk_level(score: int) -> str:
+    if score >= 60:
+        return "high"
+    if score >= 25:
+        return "medium"
+    return "low"

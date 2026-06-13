@@ -1,101 +1,327 @@
 - name: GitHub
+  category: dev
   url: https://github.com/{username}
   exists_status: [200]
   missing_status: [404]
+  exists_patterns: ["followers", "repositories"]
 - name: GitLab
+  category: dev
   url: https://gitlab.com/{username}
   exists_status: [200]
   missing_status: [404]
 - name: Bitbucket
+  category: dev
   url: https://bitbucket.org/{username}/
   exists_status: [200]
   missing_status: [404]
-- name: Reddit
-  url: https://www.reddit.com/user/{username}/
+- name: SourceForge
+  category: dev
+  url: https://sourceforge.net/u/{username}/profile/
   exists_status: [200]
   missing_status: [404]
-- name: Hacker News
-  url: https://news.ycombinator.com/user?id={username}
+- name: Codeberg
+  category: dev
+  url: https://codeberg.org/{username}
   exists_status: [200]
   missing_status: [404]
-- name: X
-  url: https://x.com/{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Instagram
-  url: https://www.instagram.com/{username}/
-  exists_status: [200]
-  missing_status: [404]
-- name: TikTok
-  url: https://www.tiktok.com/@{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: YouTube
-  url: https://www.youtube.com/@{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Twitch
-  url: https://www.twitch.tv/{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Medium
-  url: https://medium.com/@{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Dev.to
-  url: https://dev.to/{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Product Hunt
-  url: https://www.producthunt.com/@{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Keybase
-  url: https://keybase.io/{username}
-  exists_status: [200]
-  missing_status: [404]
-- name: Docker Hub
-  url: https://hub.docker.com/u/{username}
+- name: Launchpad
+  category: dev
+  url: https://launchpad.net/~{username}
   exists_status: [200]
   missing_status: [404]
 - name: npm
+  category: dev
   url: https://www.npmjs.com/~{username}
   exists_status: [200]
   missing_status: [404]
 - name: PyPI
+  category: dev
   url: https://pypi.org/user/{username}/
   exists_status: [200]
   missing_status: [404]
 - name: Packagist
+  category: dev
   url: https://packagist.org/users/{username}/
   exists_status: [200]
   missing_status: [404]
-- name: CodePen
-  url: https://codepen.io/{username}
+- name: RubyGems
+  category: dev
+  url: https://rubygems.org/profiles/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Docker Hub
+  category: dev
+  url: https://hub.docker.com/u/{username}
   exists_status: [200]
   missing_status: [404]
 - name: Replit
+  category: dev
   url: https://replit.com/@{username}
   exists_status: [200]
   missing_status: [404]
-- name: Kaggle
-  url: https://www.kaggle.com/{username}
+- name: CodePen
+  category: dev
+  url: https://codepen.io/{username}
   exists_status: [200]
   missing_status: [404]
-- name: Steam
-  url: https://steamcommunity.com/id/{username}
+- name: Stack Overflow
+  category: dev
+  url: https://stackoverflow.com/users/{username}
   exists_status: [200]
   missing_status: [404]
-- name: SoundCloud
-  url: https://soundcloud.com/{username}
+  notes: Stack Overflow numeric IDs are more reliable than usernames.
+- name: HackerOne
+  category: security
+  url: https://hackerone.com/{username}
   exists_status: [200]
   missing_status: [404]
-- name: Vimeo
-  url: https://vimeo.com/{username}
+- name: Bugcrowd
+  category: security
+  url: https://bugcrowd.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Hack The Box
+  category: security
+  url: https://app.hackthebox.com/profile/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: TryHackMe
+  category: security
+  url: https://tryhackme.com/p/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Reddit
+  category: social
+  url: https://www.reddit.com/user/{username}/
+  exists_status: [200]
+  missing_status: [404]
+- name: Hacker News
+  category: social
+  url: https://news.ycombinator.com/user?id={username}
+  exists_status: [200]
+  missing_status: [404]
+- name: X
+  category: social
+  url: https://x.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Instagram
+  category: social
+  url: https://www.instagram.com/{username}/
+  exists_status: [200]
+  missing_status: [404]
+- name: Threads
+  category: social
+  url: https://www.threads.net/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Facebook
+  category: social
+  url: https://www.facebook.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: TikTok
+  category: social
+  url: https://www.tiktok.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Bluesky
+  category: social
+  url: https://bsky.app/profile/{username}.bsky.social
+  exists_status: [200]
+  missing_status: [404]
+- name: Mastodon Social
+  category: social
+  url: https://mastodon.social/@{username}
   exists_status: [200]
   missing_status: [404]
 - name: Pinterest
+  category: social
   url: https://www.pinterest.com/{username}/
   exists_status: [200]
   missing_status: [404]
-
+- name: Tumblr
+  category: social
+  url: https://{username}.tumblr.com/
+  exists_status: [200]
+  missing_status: [404]
+- name: About.me
+  category: social
+  url: https://about.me/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Linktree
+  category: social
+  url: https://linktr.ee/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Carrd
+  category: social
+  url: https://{username}.carrd.co/
+  exists_status: [200]
+  missing_status: [404]
+- name: Gravatar
+  category: social
+  url: https://gravatar.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Keybase
+  category: identity
+  url: https://keybase.io/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Product Hunt
+  category: startup
+  url: https://www.producthunt.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Indie Hackers
+  category: startup
+  url: https://www.indiehackers.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Medium
+  category: writing
+  url: https://medium.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Dev.to
+  category: writing
+  url: https://dev.to/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Substack
+  category: writing
+  url: https://{username}.substack.com/
+  exists_status: [200]
+  missing_status: [404]
+- name: Hashnode
+  category: writing
+  url: https://hashnode.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Blogger
+  category: writing
+  url: https://{username}.blogspot.com/
+  exists_status: [200]
+  missing_status: [404]
+- name: YouTube
+  category: media
+  url: https://www.youtube.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Twitch
+  category: media
+  url: https://www.twitch.tv/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Kick
+  category: media
+  url: https://kick.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Vimeo
+  category: media
+  url: https://vimeo.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: SoundCloud
+  category: media
+  url: https://soundcloud.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Bandcamp
+  category: media
+  url: https://{username}.bandcamp.com/
+  exists_status: [200]
+  missing_status: [404]
+- name: Spotify
+  category: media
+  url: https://open.spotify.com/user/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Behance
+  category: creative
+  url: https://www.behance.net/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Dribbble
+  category: creative
+  url: https://dribbble.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: ArtStation
+  category: creative
+  url: https://www.artstation.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Figma Community
+  category: creative
+  url: https://www.figma.com/@{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Kaggle
+  category: data
+  url: https://www.kaggle.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Hugging Face
+  category: data
+  url: https://huggingface.co/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Steam
+  category: gaming
+  url: https://steamcommunity.com/id/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Roblox
+  category: gaming
+  url: https://www.roblox.com/users/profile?username={username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Minecraft NameMC
+  category: gaming
+  url: https://namemc.com/profile/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Chess.com
+  category: gaming
+  url: https://www.chess.com/member/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Lichess
+  category: gaming
+  url: https://lichess.org/@/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Strava
+  category: fitness
+  url: https://www.strava.com/athletes/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Letterboxd
+  category: lifestyle
+  url: https://letterboxd.com/{username}/
+  exists_status: [200]
+  missing_status: [404]
+- name: Goodreads
+  category: lifestyle
+  url: https://www.goodreads.com/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Duolingo
+  category: lifestyle
+  url: https://www.duolingo.com/profile/{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Wikipedia
+  category: knowledge
+  url: https://en.wikipedia.org/wiki/User:{username}
+  exists_status: [200]
+  missing_status: [404]
+- name: Internet Archive
+  category: knowledge
+  url: https://archive.org/details/@{username}
+  exists_status: [200]
+  missing_status: [404]

@@ -8,4 +8,5 @@ uploads/*
 !uploads/.gitkeep
 reports/*
 !reports/.gitkeep
-
+data/*
+!data/.gitkeep
